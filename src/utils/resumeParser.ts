@@ -3,8 +3,8 @@ import mammoth from 'mammoth';
 import { parseResumeText } from '../lib/gemini';
 import type { ResumeData } from '../types/resume';
 
-// Set up PDF.js worker - using unpkg CDN which is more reliable
-pdfjsLib.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@${pdfjsLib.version}/build/pdf.worker.min.js`;
+// Set up PDF.js worker - using local copy from public folder
+pdfjsLib.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.js';
 
 export const extractTextFromPDF = async (file: File): Promise<string> => {
   const arrayBuffer = await file.arrayBuffer();

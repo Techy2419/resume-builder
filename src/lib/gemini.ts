@@ -25,8 +25,8 @@ export const getGeminiModel = () => {
       throw new Error('Gemini AI not initialized. Please add your API key in settings.');
     }
   }
-  // Using gemini-1.5-flash which is the current working model (gemini-pro is deprecated)
-  return genAI!.getGenerativeModel({ model: 'gemini-1.5-flash' });
+  // Using gemini-1.5-flash-latest which is the current working model
+  return genAI!.getGenerativeModel({ model: 'gemini-1.5-flash-latest' });
 };
 
 export const isGeminiInitialized = (): boolean => {
