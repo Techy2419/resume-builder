@@ -2,15 +2,34 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 
 let genAI: GoogleGenerativeAI | null = null;
 
+// Auto-initialize with env variable if available
+const envApiKey = import.meta.env.VITE_GEMINI_API_KEY;
+if (envApiKey) {
+  genAI = new GoogleGenerativeAI(envApiKey);
+}
+
 export const initGemini = (apiKey: string) => {
-  genAI = new GoogleGenerativeAI(apiKey);
+  if (apiKey) {
+    genAI = new GoogleGenerativeAI(apiKey);
+    localStorage.setItem('gemini-api-key', apiKey);
+  }
 };
 
 export const getGeminiModel = () => {
+  // Try to initialize from localStorage if not already initialized
   if (!genAI) {
-    throw new Error('Gemini AI not initialized. Please add your API key in settings.');
+    const storedKey = localStorage.getItem('gemini-api-key');
+    if (storedKey) {
+      genAI = new GoogleGenerativeAI(storedKey);
+    } else if (!envApiKey) {
+      throw new Error('Gemini AI not initialized. Please add your API key in settings.');
+    }
   }
-  return genAI.getGenerativeModel({ model: 'gemini-pro' });
+  return genAI!.getGenerativeModel({ model: 'gemini-pro' });
+};
+
+export const isGeminiInitialized = (): boolean => {
+  return genAI !== null || !!envApiKey || !!localStorage.getItem('gemini-api-key');
 };
 
 export const analyzeResumeATS = async (resumeText: string, jobDescription?: string) => {

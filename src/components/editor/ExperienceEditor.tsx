@@ -4,11 +4,13 @@ import { Input } from '../ui/Input';
 import { Textarea } from '../ui/Textarea';
 import { Button } from '../ui/Button';
 import { Plus, Trash2, Sparkles } from 'lucide-react';
+import { improveBulletPoint } from '../../lib/gemini';
 import type { WorkExperience } from '../../types/resume';
 
 export const ExperienceEditor: React.FC = () => {
   const { resume, updateData } = useResumeStore();
   const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [improvingId, setImprovingId] = useState<string | null>(null);
 
   if (!resume) return null;
 
@@ -70,6 +72,23 @@ export const ExperienceEditor: React.FC = () => {
         'achievements',
         exp.achievements.filter((_, i) => i !== index)
       );
+    }
+  };
+
+  const handleImproveAchievement = async (expId: string, index: number) => {
+    const exp = experience.find((e) => e.id === expId);
+    if (!exp || !exp.achievements[index]) return;
+
+    const achievementId = `${expId}-${index}`;
+    setImprovingId(achievementId);
+
+    try {
+      const improved = await improveBulletPoint(exp.achievements[index]);
+      updateAchievement(expId, index, improved);
+    } catch (error: any) {
+      alert(error.message || 'Failed to improve bullet point. Please check your AI configuration in Settings.');
+    } finally {
+      setImprovingId(null);
     }
   };
 
@@ -196,8 +215,10 @@ export const ExperienceEditor: React.FC = () => {
                               variant="ghost"
                               size="sm"
                               title="AI Enhance"
+                              onClick={() => handleImproveAchievement(exp.id, index)}
+                              disabled={!achievement || improvingId === `${exp.id}-${index}`}
                             >
-                              <Sparkles className="w-4 h-4" />
+                              <Sparkles className={`w-4 h-4 ${improvingId === `${exp.id}-${index}` ? 'animate-spin' : ''}`} />
                             </Button>
                             {exp.achievements.length > 1 && (
                               <Button
